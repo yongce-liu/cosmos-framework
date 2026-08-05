@@ -81,10 +81,10 @@ class IterSpeed(EveryN):
         # for VFM
         if hasattr(model, "is_image_batch") and hasattr(model, "input_image_key") and hasattr(model, "input_video_key"):
             is_image_batch = model.is_image_batch(data_batch)
-            if is_image_batch:
+            if is_image_batch and model.input_image_key in data_batch:
                 image_batch_size = len(data_batch[model.input_image_key])
                 per_sample_batch_counter["image_batch_size"] = image_batch_size
-            else:
+            elif not is_image_batch and model.input_video_key in data_batch:
                 video_batch_size = len(data_batch[model.input_video_key])
                 per_sample_batch_counter["video_batch_size"] = video_batch_size
         # for LLM training only

@@ -11,13 +11,13 @@ import wandb
 import wandb.util
 from omegaconf import DictConfig
 
-from cosmos_framework.utils.lazy_config.lazy import LazyConfig
 from cosmos_framework.utils import distributed, log, object_store
 from cosmos_framework.utils.easy_io import easy_io
+from cosmos_framework.utils.lazy_config.lazy import LazyConfig
 
 if TYPE_CHECKING:
-    from cosmos_framework.utils.config import CheckpointConfig, Config, JobConfig
     from cosmos_framework.model._base import ImaginaireModel
+    from cosmos_framework.utils.config import CheckpointConfig, Config, JobConfig
 
 JOB_INFO = {}
 
@@ -46,6 +46,7 @@ def init_wandb(config: Config, model: ImaginaireModel) -> None:
     else:
         config_job = config.job
     config_checkpoint = config.checkpoint
+    wandb_run_name = os.environ.get("WANDB_NAME") or config_job.name
     # Try to fetch the W&B job ID for resuming training.
     wandb_id = _read_wandb_id(config_job, config_checkpoint)
     if wandb_id is None:
@@ -71,7 +72,7 @@ def init_wandb(config: Config, model: ImaginaireModel) -> None:
             id=wandb_id,
             project=config_job.project,
             group=config_job.group,
-            name=config_job.name,
+            name=wandb_run_name,
             config=config_resolved,
             dir=config_job.path_local,
             resume="allow",
@@ -94,7 +95,7 @@ def init_wandb(config: Config, model: ImaginaireModel) -> None:
                 id=wandb_id,
                 project=config_job.project,
                 group=config_job.group,
-                name=config_job.name,
+                name=wandb_run_name,
                 config=config_resolved,
                 dir=config_job.path_local,
                 mode=config_job.wandb_mode,
@@ -106,7 +107,7 @@ def init_wandb(config: Config, model: ImaginaireModel) -> None:
                 id=wandb_id,
                 project=config_job.project,
                 group=config_job.group,
-                name=config_job.name,
+                name=wandb_run_name,
                 config=config_resolved,
                 dir=config_job.path_local,
                 mode="offline",
